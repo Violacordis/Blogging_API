@@ -2,13 +2,15 @@ const express = require("express");
 const db = require("./db/db_connect");
 const errorHandler = require("./controllers/errorController");
 const AppError = require("./utils/appError");
-const authController = require("./controllers/authController");
-const userRoute = require("./routes/userRoute");
+const authRoute = require("./routes/authRoute");
+const blogRoute = require("./routes/blogRoute");
 
 const app = express();
 
 app.use(express.json());
-app.use("/user", userRoute);
+app.use("/api/users", authRoute);
+app.use("/api/blogs", blogRoute);
+db.connectToMongoDB;
 
 app.get("/", (req, res) => {
   console.log("Starting my exam!!!");
