@@ -53,3 +53,27 @@ exports.login = tryCatchError(async (req, res, next) => {
     token,
   });
 });
+
+exports.authenticate = tryCatchError(async (req, res, next) => {
+  let token;
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer")
+  ) {
+    token = req.headers.authorization.split(" ")[1];
+  }
+  if (!token) {
+    return next(new AppError("Unauthorized!!!. Please login to continue", 401));
+  }
+  // Verify the token
+  const user = await promisify(jwt.verify)(token, JWT_SECRET);
+
+  // check if the user still exists
+  const CurrentUser = await userModel.findById(user.id);
+  if (!CurrentUser) {
+    return next(new AppError("User no longer exists", 401));
+  }
+
+  req.user = CurrentUser;
+  next();
+});
