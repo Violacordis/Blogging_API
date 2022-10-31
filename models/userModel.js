@@ -16,7 +16,7 @@ const userSchema = new Schema(
     email: {
       type: String,
       required: [true, "Please provide your email"],
-      unique: true,
+      unique: [true, "This email already exists"],
       lowercase: true,
       validate: [validator.isEmail, "Please provide a valid email"],
     },
@@ -26,16 +26,22 @@ const userSchema = new Schema(
       minlength: [5, "Password must be at least 5 characters"],
       select: false,
     },
-    passwordConfirm: {
-      type: String,
-      required: [true, "Please confirm your password"],
-      validate: {
-        validator: function (pass) {
-          return pass === this.password;
-        },
-        message: "Passwords do not match",
+    blogs: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Blog",
       },
-    },
+    ],
+    // passwordConfirm: {
+    //   type: String,
+    //   required: [true, "Please confirm your password"],
+    //   validate: {
+    //     validator: function (pass) {
+    //       return pass === this.password;
+    //     },
+    //     message: "Passwords do not match",
+    //   },
+    // },
   },
   { timestamps: true }
 );
@@ -44,7 +50,7 @@ userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
 
   this.password = await bcrypt.hash(this.password, 10);
-  this.passwordConfirm = undefined;
+  // this.passwordConfirm = undefined;
   next();
 });
 
@@ -53,6 +59,6 @@ userSchema.methods.validPassword = async function (password, userPassword) {
   return comparePassword;
 };
 
-const User = mongoose.model("user", userSchema);
+const User = mongoose.model("User", userSchema);
 
 module.exports = User;
