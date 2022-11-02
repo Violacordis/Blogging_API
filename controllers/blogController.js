@@ -7,7 +7,7 @@ const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const { readingTime } = require("../utils/readingTimeFunc");
 
-exports.createBlog = tryCatchError(async (req, res, next) => {
+exports.createArticle = tryCatchError(async (req, res, next) => {
   const { title, description, state, tags, body } = req.body;
 
   if (!title || !description || !state || !tags || !body) {
@@ -21,7 +21,7 @@ exports.createBlog = tryCatchError(async (req, res, next) => {
   const reading_time = `${time} min read`;
 
   // create the blog
-  const newBlog = new blogModel({
+  const newArticle = new blogModel({
     title: title,
     description: description,
     author: `${user.firstName} ${user.lastName}`,
@@ -33,22 +33,22 @@ exports.createBlog = tryCatchError(async (req, res, next) => {
   });
 
   // save the blog
-  const savedBlog = await newBlog.save();
+  const savedArticle = await newArticle.save();
   // add the blog to the user's blogs array
-  user.blogs = user.blogs.concat(savedBlog._id);
+  user.articles = user.articles.concat(savedArticle._id);
   // save the user
   await user.save();
 
   res.status(201).json({
     status: "success",
-    message: "Blog created successfully",
+    message: "Article created successfully",
     data: {
-      blog: savedBlog,
+      blog: savedArticle,
     },
   });
 });
 
-exports.getAllBlogs = tryCatchError(async (req, res, next) => {
+exports.getAllArticles = tryCatchError(async (req, res, next) => {
   const queryObj = { ...req.query };
 
   // Filtering
@@ -71,13 +71,14 @@ exports.getAllBlogs = tryCatchError(async (req, res, next) => {
   query = query.skip(skip).limit(limit);
 
   if (req.query.page) {
-    const numBlogs = await blogModel
+    const numArticles = await blogModel
       .countDocuments()
       .where({ state: "published" });
-    if (skip >= numBlogs) throw new AppError("This page does not exist", 404);
+    if (skip >= numArticles)
+      throw new AppError("This page does not exist", 404);
   }
 
-  const publishedBlogs = await blogModel
+  const publishedArticles = await blogModel
     .find(query)
     .where({ state: "published" })
     .populate("user", { firstName: 1, lastName: 1, _id: 1 });
@@ -89,79 +90,73 @@ exports.getAllBlogs = tryCatchError(async (req, res, next) => {
 
   res.status(200).json({
     status: "success",
-    result: publishedBlogs.length,
+    result: publishedArticles.length,
     current_page: page,
     limit: limit,
-    total_pages: Math.ceil(publishedBlogs.length / limit),
+    total_pages: Math.ceil(publishedArticles.length / limit),
     data: {
-      publishedBlogs,
+      publishedArticles,
     },
   });
 });
 
-exports.getBlog = tryCatchError(async (req, res, next) => {
+exports.getArticle = tryCatchError(async (req, res, next) => {
   const { id } = req.params;
   // finding the blog by id
-  const foundBlog = await blogModel.findById(id).where({ state: "published" });
+  const article = await blogModel
+    .findById(id)
+    .where({ state: "published" })
+    .populate("user", { firstName: 1, lastName: 1, _id: 1 });
 
   // if the blog is not found
-  if (!foundBlog) {
-    return next(new AppError("Blog not found", 404));
+  if (!article) {
+    return next(new AppError("Article not found", 404));
   }
-  // if the blog is found
-  const blog = await foundBlog
-    .updateOne({ $inc: { read_count: 1 } })
-    .populate("user", {
-      firstName: 1,
-      lastName: 1,
-      _id: 1,
-    });
+  // Update the read_count
+  article.read_count += 1;
+  // save to the database
+  article.save();
 
   res.status(200).json({
     status: "success",
-    blog,
+    article,
   });
 });
 
-exports.getUserBlogs = tryCatchError(async (req, res, next) => {
+exports.getUserArticle = tryCatchError(async (req, res, next) => {
   const user = req.user;
+  // console.log(user.id);
 
-  // Fetching the blogs of the user
-  const User = await userModel.findById(user.id);
-  if (!User) return next(new AppError("User not found", 404));
+  // Fetching the user articles with user id
+  const User = await userModel.findById(user.id).populate("articles");
 
-  const foundUser = await User.populate("blogs");
-  const blogs = foundUser.blogs;
+  console.log(User);
 
   return res.status(200).json({
     status: "success",
-    result: blogs.length,
-    current_page: page,
-    limit: limit,
-    total_pages: Math.ceil(blogs.length / limit),
     data: {
-      blogs: blogs,
+      articles: User.articles,
     },
   });
 });
 
-exports.updateUserBlog = tryCatchError(async (req, res, next) => {
+exports.updateUserArticle = tryCatchError(async (req, res, next) => {
   const { title, description, state, tags, body } = req.body;
   // Getting the logged in user
   const user = req.user;
   // console.log(user.id);
 
   // Getting the blog id
-  const blog = await blogModel.findById(req.params.id);
-  // console.log(blog.user._id);
+  const article = await blogModel.findById(req.params.id);
+  // console.log(article.user._id);
 
   //Checking if the logged in user is the owner of the blog in order to update it
-  if (user.id !== blog.user._id.toString())
+  if (user.id !== article.user._id.toString())
     return next(
-      new AppError("You are not authorized to update this blog", 401)
+      new AppError("You are not authorized to update this article", 401)
     );
   // Updating the blog
-  const Blog = await blogModel.findByIdAndUpdate(
+  const updatedArticle = await blogModel.findByIdAndUpdate(
     { _id: req.params.id },
     {
       $set: {
@@ -179,7 +174,9 @@ exports.updateUserBlog = tryCatchError(async (req, res, next) => {
   res.status(200).json({
     status: "success",
     data: {
-      Blog,
+      updatedArticle,
     },
   });
 });
+
+exports.deleteUserArticle = tryCatchError(async (req, res, next) => {});

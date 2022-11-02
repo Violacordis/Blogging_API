@@ -5,14 +5,15 @@ const authController = require("../controllers/authController");
 
 router
   .route("/")
-  .get(blogController.getAllBlogs)
-  .post(authController.authenticate, blogController.createBlog);
+  .get(blogController.getAllArticles)
+  .post(authController.authenticate, blogController.createArticle);
 
-router.route("/:id").get(blogController.getBlog);
+router.route("/:id").get(blogController.getArticle);
 
 router
-  .route("/user/:id")
-  .get(authController.authenticate, blogController.getUserBlogs)
-  .put(authController.authenticate, blogController.updateUserBlog);
+  .route("/userArticles/:id")
+  .get(authController.authenticate, blogController.getUserArticle)
+  .put(authController.authenticate, blogController.updateUserArticle)
+  .delete(authController.authenticate, blogController.deleteUserArticle);
 
 module.exports = router;

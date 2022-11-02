@@ -26,7 +26,7 @@ const userSchema = new Schema(
       minlength: [5, "Password must be at least 5 characters"],
       select: false,
     },
-    blogs: [
+    articles: [
       {
         type: Schema.Types.ObjectId,
         ref: "Blog",

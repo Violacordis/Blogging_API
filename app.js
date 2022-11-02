@@ -11,7 +11,7 @@ const app = express();
 app.use(express.json());
 app.use(logger("dev"));
 app.use("/api/users", authRoute);
-app.use("/api/blogs", blogRoute);
+app.use("/api/blog", blogRoute);
 db.connectToMongoDB;
 
 app.get("/", (req, res) => {
