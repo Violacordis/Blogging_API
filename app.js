@@ -4,10 +4,12 @@ const errorHandler = require("./controllers/errorController");
 const AppError = require("./utils/appError");
 const authRoute = require("./routes/authRoute");
 const blogRoute = require("./routes/blogRoute");
+const logger = require("morgan");
 
 const app = express();
 
 app.use(express.json());
+app.use(logger("dev"));
 app.use("/api/users", authRoute);
 app.use("/api/blogs", blogRoute);
 db.connectToMongoDB;

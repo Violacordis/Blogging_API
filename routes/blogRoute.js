@@ -10,4 +10,9 @@ router
 
 router.route("/:id").get(blogController.getBlog);
 
+router
+  .route("/user/:id")
+  .get(authController.authenticate, blogController.getUserBlogs)
+  .put(authController.authenticate, blogController.updateUserBlog);
+
 module.exports = router;

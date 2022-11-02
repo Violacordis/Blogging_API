@@ -2,6 +2,9 @@ const blogModel = require("../models/blogModel");
 const userModel = require("../models/userModel");
 const tryCatchError = require("../utils/tryCatchError");
 const AppError = require("../utils/appError");
+const { promisify } = require("util");
+const jwt = require("jsonwebtoken");
+require("dotenv").config();
 const { readingTime } = require("../utils/readingTimeFunc");
 
 exports.createBlog = tryCatchError(async (req, res, next) => {
@@ -87,6 +90,9 @@ exports.getAllBlogs = tryCatchError(async (req, res, next) => {
   res.status(200).json({
     status: "success",
     result: publishedBlogs.length,
+    current_page: page,
+    limit: limit,
+    total_pages: Math.ceil(publishedBlogs.length / limit),
     data: {
       publishedBlogs,
     },
@@ -114,5 +120,66 @@ exports.getBlog = tryCatchError(async (req, res, next) => {
   res.status(200).json({
     status: "success",
     blog,
+  });
+});
+
+exports.getUserBlogs = tryCatchError(async (req, res, next) => {
+  const user = req.user;
+
+  // Fetching the blogs of the user
+  const User = await userModel.findById(user.id);
+  if (!User) return next(new AppError("User not found", 404));
+
+  const foundUser = await User.populate("blogs");
+  const blogs = foundUser.blogs;
+
+  return res.status(200).json({
+    status: "success",
+    result: blogs.length,
+    current_page: page,
+    limit: limit,
+    total_pages: Math.ceil(blogs.length / limit),
+    data: {
+      blogs: blogs,
+    },
+  });
+});
+
+exports.updateUserBlog = tryCatchError(async (req, res, next) => {
+  const { title, description, state, tags, body } = req.body;
+  // Getting the logged in user
+  const user = req.user;
+  // console.log(user.id);
+
+  // Getting the blog id
+  const blog = await blogModel.findById(req.params.id);
+  // console.log(blog.user._id);
+
+  //Checking if the logged in user is the owner of the blog in order to update it
+  if (user.id !== blog.user._id.toString())
+    return next(
+      new AppError("You are not authorized to update this blog", 401)
+    );
+  // Updating the blog
+  const Blog = await blogModel.findByIdAndUpdate(
+    { _id: req.params.id },
+    {
+      $set: {
+        title: title,
+        description: description,
+        state: state,
+        tags: tags,
+        body: body,
+      },
+    },
+    {
+      new: true,
+    }
+  );
+  res.status(200).json({
+    status: "success",
+    data: {
+      Blog,
+    },
   });
 });
