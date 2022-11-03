@@ -32,21 +32,11 @@ const userSchema = new Schema(
         ref: "Blog",
       },
     ],
-    // passwordConfirm: {
-    //   type: String,
-    //   required: [true, "Please confirm your password"],
-    //   validate: {
-    //     validator: function (pass) {
-    //       return pass === this.password;
-    //     },
-    //     message: "Passwords do not match",
-    //   },
-    // },
   },
   { timestamps: true }
 );
 
-userSchema.pre("save", async function (next) {
+userSchema.pre("save", async function(next) {
   if (!this.isModified("password")) return next();
 
   this.password = await bcrypt.hash(this.password, 10);
@@ -54,7 +44,7 @@ userSchema.pre("save", async function (next) {
   next();
 });
 
-userSchema.methods.validPassword = async function (password, userPassword) {
+userSchema.methods.validPassword = async function(password, userPassword) {
   const comparePassword = await bcrypt.compare(password, userPassword);
   return comparePassword;
 };
