@@ -11,7 +11,7 @@ router
 router.route("/:id").get(blogController.getArticle);
 
 router
-  .route("/userArticles/:id")
+  .route("/articles/:id")
   .get(authController.authenticate, blogController.getUserArticle)
   .put(authController.authenticate, blogController.updateUserArticle)
   .delete(authController.authenticate, blogController.deleteUserArticle);

@@ -2,17 +2,21 @@ const blogModel = require("../models/blogModel");
 const userModel = require("../models/userModel");
 const tryCatchError = require("../utils/tryCatchError");
 const AppError = require("../utils/appError");
-const { promisify } = require("util");
-const jwt = require("jsonwebtoken");
 require("dotenv").config();
 const { readingTime } = require("../utils/readingTimeFunc");
 
+/**
+ * @description Create a new article
+ * @route POST /api/blog
+ * @access Private
+ */
 exports.createArticle = tryCatchError(async (req, res, next) => {
   const { title, description, state, tags, body } = req.body;
 
   if (!title || !description || !state || !tags || !body) {
     return next(new AppError("Please provide all the required fields", 400));
   }
+
   // find the user who is creating the blog
   const user = await userModel.findById(req.user._id);
   // console.log(req.user._id);
@@ -34,8 +38,10 @@ exports.createArticle = tryCatchError(async (req, res, next) => {
 
   // save the blog
   const savedArticle = await newArticle.save();
+
   // add the blog to the user's blogs array
   user.articles = user.articles.concat(savedArticle._id);
+
   // save the user
   await user.save();
 
@@ -48,6 +54,12 @@ exports.createArticle = tryCatchError(async (req, res, next) => {
   });
 });
 
+// <------------------------------------------------------------Get all published articles--------------------------------------------------------------->
+/**
+ * @description Get all published articles
+ * @route GET /api/blog
+ * @access Public
+ */
 exports.getAllArticles = tryCatchError(async (req, res, next) => {
   const queryObj = { ...req.query };
 
@@ -78,15 +90,11 @@ exports.getAllArticles = tryCatchError(async (req, res, next) => {
       throw new AppError("This page does not exist", 404);
   }
 
+  // Displaying only published articles
   const publishedArticles = await blogModel
     .find(query)
     .where({ state: "published" })
     .populate("user", { firstName: 1, lastName: 1, _id: 1 });
-
-  // Displaying only published state blogs
-  // const publishedBlogs = allBlogsInDB
-  //   .find(query)
-  //   .filter((blog) => blog.state === "published");
 
   res.status(200).json({
     status: "success",
@@ -100,20 +108,27 @@ exports.getAllArticles = tryCatchError(async (req, res, next) => {
   });
 });
 
+// <------------------------------------------------------------Get a published article--------------------------------------------------------------->
+/**
+ * @description Get a single published article by the article id
+ * @route GET /api/blog/:id
+ * @access Public
+ */
 exports.getArticle = tryCatchError(async (req, res, next) => {
   const { id } = req.params;
-  // finding the blog by id
+
   const article = await blogModel
     .findById(id)
     .where({ state: "published" })
     .populate("user", { firstName: 1, lastName: 1, _id: 1 });
 
-  // if the blog is not found
   if (!article) {
     return next(new AppError("Article not found", 404));
   }
-  // Update the read_count
+
+  // Updating the read_count
   article.read_count += 1;
+
   // save to the database
   article.save();
 
@@ -123,6 +138,12 @@ exports.getArticle = tryCatchError(async (req, res, next) => {
   });
 });
 
+// <------------------------------------------------------------Get all articles by a user--------------------------------------------------------------->
+/**
+ * @description Get all user articles using the user id
+ * @route GET  /api/blog/articles/:id
+ * @access Private
+ */
 exports.getUserArticle = tryCatchError(async (req, res, next) => {
   const user = req.user;
   // console.log(user.id);
@@ -142,9 +163,16 @@ exports.getUserArticle = tryCatchError(async (req, res, next) => {
   });
 });
 
+// <------------------------------------------------------------Article update by the author-------------------------------------------------------------->
+/**
+ * @description Article update by the author
+ * @route PUT /api/blog/articles/:id
+ * @access Private
+ */
 exports.updateUserArticle = tryCatchError(async (req, res, next) => {
   const { title, description, state, tags, body } = req.body;
   // Getting the logged in user
+
   const user = req.user;
   // console.log(user.id);
 
@@ -157,6 +185,7 @@ exports.updateUserArticle = tryCatchError(async (req, res, next) => {
     return next(
       new AppError("You are not authorized to update this article", 401)
     );
+
   // Updating the blog
   const updatedArticle = await blogModel.findByIdAndUpdate(
     { _id: req.params.id },
@@ -173,6 +202,7 @@ exports.updateUserArticle = tryCatchError(async (req, res, next) => {
       new: true,
     }
   );
+
   res.status(200).json({
     status: "success",
     data: {
@@ -181,6 +211,12 @@ exports.updateUserArticle = tryCatchError(async (req, res, next) => {
   });
 });
 
+// <------------------------------------------------------------Article delete by the author-------------------------------------------------------------->
+/**
+ * @description Article delete by the author
+ * @route DELETE /api/blog/articles/:id
+ * @access Private
+ */
 exports.deleteUserArticle = tryCatchError(async (req, res, next) => {
   const user = req.user;
   const article = await blogModel.findById(req.params.id);
