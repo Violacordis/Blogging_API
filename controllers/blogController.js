@@ -189,7 +189,8 @@ exports.deleteUserArticle = tryCatchError(async (req, res, next) => {
     return next(
       new AppError("You are not authorized to delete this article", 401)
     );
-  await blogModel.findByIdAndDelete(req.params.id).select("-__v");
+
+  await blogModel.findByIdAndDelete(req.params.id);
 
   console.log("Article deleted successfully");
   res.status(204).json({
