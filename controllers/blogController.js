@@ -130,12 +130,14 @@ exports.getUserArticle = tryCatchError(async (req, res, next) => {
   // Fetching the user articles with user id
   const User = await userModel.findById(user.id).populate("articles");
 
-  console.log(User);
+  // console.log(User);
+  const articles = User.articles;
 
   return res.status(200).json({
     status: "success",
+    result: articles.length,
     data: {
-      articles: User.articles,
+      articles: articles,
     },
   });
 });
@@ -179,4 +181,18 @@ exports.updateUserArticle = tryCatchError(async (req, res, next) => {
   });
 });
 
-exports.deleteUserArticle = tryCatchError(async (req, res, next) => {});
+exports.deleteUserArticle = tryCatchError(async (req, res, next) => {
+  const user = req.user;
+  const article = await blogModel.findById(req.params.id);
+
+  if (user.id !== article.user._id.toString())
+    return next(
+      new AppError("You are not authorized to delete this article", 401)
+    );
+  await blogModel.findByIdAndDelete(req.params.id).select("-__v");
+
+  console.log("Article deleted successfully");
+  res.status(204).json({
+    status: "success",
+  });
+});
