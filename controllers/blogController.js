@@ -80,7 +80,6 @@ exports.getAllArticles = tryCatchError(async (req, res, next) => {
   const page = req.query.page * 1 || 1; // convert to number and set default value to 1
   const limit = req.query.limit * 1 || 20;
   const skip = (page - 1) * limit;
-  query = query.skip(skip).limit(limit);
 
   if (req.query.page) {
     const numArticles = await blogModel
@@ -89,6 +88,7 @@ exports.getAllArticles = tryCatchError(async (req, res, next) => {
     if (skip >= numArticles)
       throw new AppError("This page does not exist", 404);
   }
+  query = query.skip(skip).limit(limit);
 
   // Displaying only published articles
   const publishedArticles = await blogModel
@@ -147,12 +147,37 @@ exports.getArticle = tryCatchError(async (req, res, next) => {
 exports.getUserArticle = tryCatchError(async (req, res, next) => {
   const user = req.user;
   // console.log(user.id);
+  const queryObj = { ...req.query };
 
-  // Fetching the user articles with user id
-  const User = await userModel.findById(user.id).populate("articles");
+  const excludedFields = ["page", "sort", "limit"];
+  excludedFields.forEach((el) => delete queryObj[el]);
 
-  // console.log(User);
-  const articles = User.articles;
+  let query = blogModel.find({ user });
+  // console.log(query);
+
+  // Sorting
+  if (req.query.sort) {
+    const sortBy = req.query.sort.split(",").join(" ");
+    query = query.sort(sortBy);
+  } else {
+    query = query.sort("-createdAt"); // default sorting : starting from the most recent
+  }
+
+  // Pagination
+  const page = req.query.page * 1 || 1; // convert to number and set default value to 1
+  const limit = req.query.limit * 1 || 20;
+  const skip = (page - 1) * limit;
+
+  if (req.query.page) {
+    const numArticles = await query.countDocuments();
+    if (skip >= numArticles)
+      throw new AppError("This page does not exist", 404);
+  }
+  query = query.skip(skip).limit(limit);
+
+  query = query.populate("user", { firstName: 1, lastName: 1, _id: 1 });
+
+  const articles = await query;
 
   return res.status(200).json({
     status: "success",
