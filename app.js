@@ -12,6 +12,7 @@ app.use(express.json());
 app.use(logger("dev"));
 app.use("/api/users", authRoute);
 app.use("/api/blog", blogRoute);
+
 db.connectToMongoDB;
 
 app.get("/", (req, res) => {
@@ -22,7 +23,7 @@ app.get("/", (req, res) => {
   });
 });
 
-// catching all  undefined routes
+// catching all undefined routes
 app.all("*", (req, res, next) => {
   next(new AppError(`Page not found!`, 404));
 });
