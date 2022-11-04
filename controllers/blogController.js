@@ -245,16 +245,21 @@ exports.updateUserArticle = tryCatchError(async (req, res, next) => {
 exports.deleteUserArticle = tryCatchError(async (req, res, next) => {
   const user = req.user;
   const article = await blogModel.findById(req.params.id);
+  const User = await userModel.findById(user.id);
 
   if (user.id !== article.user._id.toString())
     return next(
       new AppError("You are not authorized to delete this article", 401)
     );
-
   await blogModel.findByIdAndDelete(req.params.id);
 
-  console.log("Article deleted successfully");
-  res.status(204).json({
+  const index = User.articles.indexOf(req.params.id);
+  if (index === -1) return next(new AppError("Article not found", 404));
+  User.articles.splice(index, 1);
+  await User.save();
+
+  res.status(200).json({
     status: "success",
+    message: "Article deleted successfully",
   });
 });
