@@ -10,7 +10,7 @@ const app = express();
 
 app.use(express.json());
 app.use(logger("dev"));
-app.use("/api/v1/users", authRoute);
+app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/blog", blogRoute);
 
 db.connectToMongoDB;
