@@ -27,9 +27,11 @@ const blogSchema = new Schema(
     },
     reading_time: {
       type: String,
+      required: [true, "Please provide the reading time"],
     },
     tags: {
       type: [String],
+      required: [true, "Please provide the tags"],
     },
     body: {
       type: String,
