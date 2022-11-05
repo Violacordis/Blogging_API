@@ -16,7 +16,6 @@ app.use("/api/blog", blogRoute);
 db.connectToMongoDB;
 
 app.get("/api", (req, res) => {
-  console.log("Starting my exam!!!");
   return res.status(200).json({
     status: "success",
     message: "Welcome to my Blog Website",
