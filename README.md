@@ -27,8 +27,8 @@ This is an api for a blog app. This API has a general endpoint that shows a list
 
 - Install NodeJS, mongodb
 - pull this repo
-- update env with example.env
-- run `npm run start:dev`
+- setup your .env file
+- run `npm run dev`
 
 ---
 
