@@ -10,12 +10,12 @@ const app = express();
 
 app.use(express.json());
 app.use(logger("dev"));
-app.use("/api/users", authRoute);
-app.use("/api/blog", blogRoute);
+app.use("/api/v1/users", authRoute);
+app.use("/api/v1/blog", blogRoute);
 
 db.connectToMongoDB;
 
-app.get("/api", (req, res) => {
+app.get("/api/v1", (req, res) => {
   return res.status(200).json({
     status: "success",
     message: "Welcome to my Blog Website",
