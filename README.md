@@ -74,8 +74,45 @@ Visit this site for my [Postman documentation of the APIs](https://documenter.ge
 
 ---
 
+## Test application
+
+### Signup and login
+
+```
+ikemv@DESKTOP-85EPS4R MINGW64 ~/Blogging_API (main)
+$ npm run test
+
+> blogging_api@1.0.0 test
+> jest --detectOpenHandles.unref()
+
+  console.log
+    Successfully Connected to MongoDB
+
+      at NativeConnection.log (src/db/db_connect.js:11:13)
+
+  console.log
+    Successfully Connected to MongoDB
+
+      at NativeConnection.log (src/db/db_connect.js:11:13)
+
+POST /api/v1/auth/signup 201 8919.972 ms - 499
+POST /api/v1/auth/login 200 260.462 ms - 202
+PASS src/tests/auth.test.js (38.617 s)
+  user signup and login
+    √ should signup a new user (9469 ms)
+    √ should login a user (304 ms)
+
+Test Suites: 1 passed, 1 total
+Tests:       2 passed, 2 total
+Snapshots:   0 total
+Time:        39.855 s
+Ran all test suites.
+
+
+```
+
 ...
 
 ## Contributor
 
-- Ikem Violacordis
+- Ikem Violacordis Ada
