@@ -6,7 +6,7 @@ This is an api for a blog app. This API has a general endpoint that shows a list
 
 ## Requirements
 
-1. Users should have a first name, last name, email, password, (you can add other attributes you want to store about the user).
+1. Users should have a first name, last name, email, password.
 2. A user should be able to sign up and sign in into the blog app
 3. Use JWT as authentication strategy and expire the token after 1 hour
 4. A blog can be in two states; draft and published
