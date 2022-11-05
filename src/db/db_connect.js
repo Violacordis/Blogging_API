@@ -15,6 +15,5 @@ const connectToMongoDB = () => {
     console.log("Error Connecting to MongoDB", err);
   });
 };
-connectToMongoDB();
 
-module.exports = connectToMongoDB;
+module.exports = { connectToMongoDB };

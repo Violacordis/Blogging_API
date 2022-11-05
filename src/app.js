@@ -1,5 +1,5 @@
 const express = require("express");
-const db = require("./db/db_connect");
+const { connectToMongoDB } = require("./db/db_connect");
 const errorHandler = require("./controllers/errorController");
 const AppError = require("./utils/appError");
 const authRoute = require("./routes/authRoute");
@@ -13,7 +13,7 @@ app.use(logger("dev"));
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/blog", blogRoute);
 
-db.connectToMongoDB;
+connectToMongoDB();
 
 app.get("/api/v1", (req, res) => {
   return res.status(200).json({
