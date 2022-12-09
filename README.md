@@ -34,7 +34,7 @@ This is an api for a blog app. This API has a general endpoint that shows a list
 
 ## Base URL
 
-- [My blog API base URL](https://safe-scrubland-60722.herokuapp.com/api/v1)
+- [My blog API base URL](https://blog-api-5rad.onrender.com/api/v1/)
 
 ## Models
 
