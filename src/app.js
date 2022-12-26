@@ -38,7 +38,11 @@ app.get("/api/v1", (req, res) => {
   });
 });
 
-app.get("api/v1/ip", (request, response) => response.send(request.ip));
+app.get("api/v1/ip", (request, response) => {
+  response.json({
+    number: request.ip,
+  });
+});
 
 // catching all undefined routes
 app.all("*", (req, res, next) => {
