@@ -28,6 +28,12 @@ app.use(limiter);
 // Adding security headers
 app.use(helmet());
 
+app.get("api/v1/ip", (request, response) => {
+  response.json({
+    number: request.ip,
+  });
+});
+
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/blog", blogRoute);
 
@@ -35,12 +41,6 @@ app.get("/api/v1", (req, res) => {
   return res.status(200).json({
     status: "success",
     message: "Welcome to my Blog Website",
-  });
-});
-
-app.get("api/v1/ip", (request, response) => {
-  response.json({
-    number: request.ip,
   });
 });
 
