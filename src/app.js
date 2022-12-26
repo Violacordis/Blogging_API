@@ -11,6 +11,8 @@ require("dotenv").config();
 const app = express();
 connectToMongoDB();
 
+app.set("trust proxy", 1); // trust first proxy
+
 // Adding middlewares
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -27,12 +29,6 @@ app.use(limiter);
 
 // Adding security headers
 app.use(helmet());
-
-app.get("api/v1/ip", (request, response) => {
-  response.json({
-    number: request.ip,
-  });
-});
 
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/blog", blogRoute);
