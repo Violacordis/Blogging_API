@@ -35,6 +35,7 @@ app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/blog", blogRoute);
 
 app.get("/api/v1", (req, res) => {
+  console.log(request.ip);
   return res.status(200).json({
     status: "success",
     message: "Welcome to my Blog Website",
