@@ -4,14 +4,18 @@ const errorHandler = require("./controllers/errorController");
 const AppError = require("./utils/appError");
 const authRoute = require("./routes/authRoute");
 const blogRoute = require("./routes/blogRoute");
+const helmet = require("helmet");
 require("dotenv").config();
 
 const app = express();
 connectToMongoDB();
 
-// Adding middlewares
+// Adding security middleware
+app.use(helmet());
 
+// Adding middlewares
 app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/blog", blogRoute);
 
