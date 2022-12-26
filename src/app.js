@@ -4,16 +4,16 @@ const errorHandler = require("./controllers/errorController");
 const AppError = require("./utils/appError");
 const authRoute = require("./routes/authRoute");
 const blogRoute = require("./routes/blogRoute");
-const logger = require("morgan");
+require("dotenv").config();
 
 const app = express();
+connectToMongoDB();
+
+// Adding middlewares
 
 app.use(express.json());
-app.use(logger("dev"));
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/blog", blogRoute);
-
-connectToMongoDB();
 
 app.get("/api/v1", (req, res) => {
   return res.status(200).json({
