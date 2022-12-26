@@ -31,8 +31,6 @@ app.use(helmet());
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/blog", blogRoute);
 
-app.get("/ip", (request, response) => response.send(request.ip));
-
 app.get("/api/v1", (req, res) => {
   return res.status(200).json({
     status: "success",
@@ -40,7 +38,7 @@ app.get("/api/v1", (req, res) => {
   });
 });
 
-app.get("/ip", (request, response) => response.send(request.ip));
+app.get("api/v1/ip", (request, response) => response.send(request.ip));
 
 // catching all undefined routes
 app.all("*", (req, res, next) => {
