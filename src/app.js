@@ -11,6 +11,7 @@ require("dotenv").config();
 const app = express();
 connectToMongoDB();
 
+// This is to eanble the proxy in the app which is required for rate limiting on hosted servers eg Render, heroku etc. This is not required for local development
 app.set("trust proxy", 1); // trust first proxy
 
 // Adding middlewares
@@ -19,7 +20,7 @@ app.use(express.urlencoded({ extended: false }));
 
 // Applying the rate limiting middleware to all requests
 const limiter = rateLimit({
-  windowMs: 0.2 * 60 * 1000, // 15 minutes
+  windowMs: 0.5 * 60 * 1000, // 15 minutes
   max: 4, // Limit each IP to 100 requests per `window` (here, per 15 minutes)
   standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // Disable the `X-RateLimit-*` headers
